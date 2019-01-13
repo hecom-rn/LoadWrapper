@@ -1,0 +1,17 @@
+{
+  "name": "@hecom/wrapper-load",
+  "version": "0.0.1",
+  "description": "Loading Queue Wrapper",
+  "main": "dist/index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git@gitlab.com:hecom/wrapper-load.git"
+  },
+  "author": "Xiaosong Gao",
+  "license": "MIT",
+  "peerDependencies": {
+    "@hecom/foundation": "*",
+    "@hecom/wrapper-basic": "*"
+  }
+}
