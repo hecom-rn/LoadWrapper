@@ -4,9 +4,11 @@ import withBasicWrapper from '@hecom/wrapper-basic';
 import Foundation from '@hecom/foundation';
 import ErrorPage from './ErrorPage';
 
-export default (WrappedComponent, options) => {
+export default (OutterComponent, options) => {
+    const WrappedComponent = withBasicWrapper(OutterComponent);
     return class extends React.PureComponent {
-        static navigationOptions = ({navigation}) => {
+        static navigationOptions = (opt) => {
+            const {navigation} = opt;
             const {_title} = navigation.state.params;
             let navOptions = {};
             if (_title !== null) {
@@ -14,8 +16,11 @@ export default (WrappedComponent, options) => {
                     navOptions.headerLeft = null;
                 }
                 navOptions.title = _title;
+            } else if (WrappedComponent.navigationOptions) {
+                const isFunc = typeof WrappedComponent.navigationOptions === 'function';
+                navOptions = isFunc ? WrappedComponent.navigationOptions(opt) : WrappedComponent.navigationOptions;
             } else {
-                navOptions = WrappedComponent.navigationOptions || {header: null};
+                navOptions = {header: null};
             }
             return navOptions;
         };
@@ -60,10 +65,12 @@ export default (WrappedComponent, options) => {
             } else {
                 const {componentFunc} = options;
                 const props = componentFunc ? componentFunc(this.innerProps) : this.innerProps;
-                const WrappedClass = withBasicWrapper(WrappedComponent);
-                const newProps = {...this.props};
-                delete newProps._title;
-                newProps.navigation.state.params = {...props};
+                const WrappedClass = WrappedComponent;
+                const newProps = {...props, navigation: this.props.navigation};
+                newProps.navigation.state.params = {
+                    ...props,
+                    _title: null,
+                };
                 return <WrappedClass {...newProps} />;
             }
         }
@@ -103,25 +110,22 @@ export default (WrappedComponent, options) => {
         };
 
         _changeStatus = (isLoading, isValid, isInitial = false) => {
-            const state = {...this.state};
+            const state = {isLoading, isValid};
             const navOptions = {};
-            if (isLoading !== undefined) {
-                state.isLoading = isLoading;
-                if (isLoading) {
+            if (isLoading) {
+                if (isInitial || !this.state.isLoading) {
                     navOptions._title = '加载中';
                 }
-            }
-            if (isValid !== undefined) {
-                state.isValid = isValid;
-                if (!isLoading) {
-                    if (isValid) {
-                        navOptions._title = null;
-                    } else {
-                        navOptions._title = options.errorTitle;
-                    }
+            } else {
+                if (isValid) {
+                    navOptions._title = null;
+                } else {
+                    navOptions._title = options.errorTitle;
                 }
             }
-            this.props.navigation.setParams(navOptions);
+            if (navOptions._title !== undefined) {
+                this.props.navigation.setParams(navOptions);
+            }
             if (isInitial) {
                 return state;
             } else {
