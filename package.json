@@ -1,6 +1,6 @@
 {
   "name": "@hecom/wrapper-load",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Loading Queue Wrapper",
   "main": "dist/index.js",
   "scripts": {},
