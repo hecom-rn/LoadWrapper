@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import withBasicWrapper from '@hecom/wrapper-basic';
 import Foundation from '@hecom/foundation';
 import ErrorPage from './ErrorPage';
@@ -25,13 +25,11 @@ export default (OutterComponent, options) => {
             return navOptions;
         };
 
-        innerProps = {};
         queue = [];
         waitings = {};
-        
+
         constructor(props) {
             super(props);
-            this.innerProps = props.navigation.state.params || {};
             options.initFunc && options.initFunc(this._options());
             this.hasInitialQueue = this.queue.length > 0;
             this.state = this._changeStatus(this.hasInitialQueue, !this.hasInitialQueue, true);
@@ -64,7 +62,8 @@ export default (OutterComponent, options) => {
                 );
             } else {
                 const {componentFunc} = options;
-                const props = componentFunc ? componentFunc(this.innerProps) : this.innerProps;
+                const innerProps = this.props.navigation.state.params || {};
+                const props = componentFunc ? componentFunc(innerProps) : innerProps;
                 const WrappedClass = WrappedComponent;
                 const newProps = {...props, navigation: this.props.navigation};
                 newProps.navigation.state.params = {
@@ -77,7 +76,7 @@ export default (OutterComponent, options) => {
 
         _options = (item) => ({
             item: item,
-            props: this.innerProps,
+            props: this.props.navigation.state.params || {},
             push: (obj, key) => {
                 this.queue.push(obj);
                 this.waitings[key] = true;
