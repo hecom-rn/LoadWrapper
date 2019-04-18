@@ -1,10 +1,30 @@
 import React from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View, StyleProp, ViewStyle } from 'react-native';
 import withBasicWrapper from '@hecom/wrapper-basic';
-import Foundation from '@hecom/foundation';
-import ErrorPage from './ErrorPage';
+import ErrorPage, * as ErrorPageItems from './ErrorPage';
 
-export default (OutterComponent, options) => {
+export interface Params<T = any> {
+    props: any;
+    item: T;
+    push: (value: T, key: string) => void;
+    isWaiting: (key: string) => boolean;
+    finish: (status: boolean, isStop: boolean) => void
+}
+
+export interface Options<T = any> {
+    canBack: boolean;
+    initFunc?: (param: Params<T>) => void;
+    processFunc?: (param: Params<T>) => void ;
+    componentFunc?: (props: any) => any;
+    errorTitle?: string;
+    errorPageOptions?: ErrorPageItems.Props;
+    loadingViewStyle: StyleProp<ViewStyle>;
+}
+
+export default function <T = any> (
+    OutterComponent: React.ComponentClass,
+    options: Options<T>
+) {
     const WrappedComponent = withBasicWrapper(OutterComponent);
     return class extends React.PureComponent {
         static navigationOptions = (opt) => {
@@ -25,8 +45,8 @@ export default (OutterComponent, options) => {
             return navOptions;
         };
 
-        queue = [];
-        waitings = {};
+        private queue: T[] = [];
+        private waitings: {[key: string]: boolean} = {};
 
         constructor(props) {
             super(props);
@@ -37,7 +57,7 @@ export default (OutterComponent, options) => {
 
         componentDidMount() {
             if (this.hasInitialQueue) {
-                setTimeout(() => this._processQueue(), 0);
+                setTimeout(this._processQueue.bind(this), 0);
             }
         }
 
@@ -45,18 +65,17 @@ export default (OutterComponent, options) => {
             const {isLoading, isValid} = this.state;
             if (isLoading) {
                 return (
-                    <View style={[styles.loading, Foundation.Style.ViewBackground]}>
+                    <View style={[styles.loading, options.loadingViewStyle]}>
                         <ActivityIndicator />
                     </View>
                 );
             } else if (!isValid) {
                 return (
                     <ErrorPage
-                        icon={options.errorIcon}
-                        text={options.errorTip}
+                        {...options.errorPageOptions}
                         onPress={() => {
                             this._changeStatus(true, false);
-                            setTimeout(this._processQueue, 0);
+                            setTimeout(this._processQueue.bind(this), 0);
                         }}
                     />
                 );
@@ -74,26 +93,28 @@ export default (OutterComponent, options) => {
             }
         }
 
-        _options = (item) => ({
-            item: item,
-            props: this.props.navigation.state.params || {},
-            push: (obj, key) => {
-                this.queue.push(obj);
-                this.waitings[key] = true;
-            },
-            isWaiting: (key) => this.waitings[key],
-            finish: this.finishItem
-        });
+        protected _options(item: T) {
+            return {
+                item: item,
+                props: this.props.navigation.state.params || {},
+                push: (obj: T, key: string) => {
+                    this.queue.push(obj);
+                    this.waitings[key] = true;
+                },
+                isWaiting: (key: string) => this.waitings[key],
+                finish: this._finishItem.bind(this),
+            };
+        }
 
-        _processQueue = () => {
+        protected _processQueue() {
             if (this.queue.length === 0) {
                 this._changeStatus(false, true);
             } else {
                 options.processFunc && options.processFunc(this._options(this.queue[0]));
             }
-        };
+        }
 
-        finishItem = (status, isStop = false) => {
+        protected _finishItem(status: boolean, isStop: boolean = false) {
             if (status) {
                 if (this.queue.length > 1) {
                     this.queue = this.queue.slice(1);
@@ -101,14 +122,18 @@ export default (OutterComponent, options) => {
                     this.queue = [];
                 }
                 if (!isStop) {
-                    setTimeout(this._processQueue, 0);
+                    setTimeout(this._processQueue.bind(this), 0);
                 }
             } else {
                 this._changeStatus(false, false);
             }
-        };
+        }
 
-        _changeStatus = (isLoading, isValid, isInitial = false) => {
+        protected _changeStatus(
+            isLoading: boolean,
+            isValid: boolean,
+            isInitial: boolean = false
+        ) {
             const state = {isLoading, isValid};
             const navOptions = {};
             if (isLoading) {
@@ -130,13 +155,9 @@ export default (OutterComponent, options) => {
             } else {
                 this.setState(state);
             }
-        };
+        }
     };
-};
-
-export {
-    ErrorPage,
-};
+}
 
 const styles = StyleSheet.create({
     loading: {

@@ -1,17 +1,27 @@
 {
   "name": "@hecom/wrapper-load",
   "version": "1.0.2",
+  "private": false,
   "description": "Loading Queue Wrapper",
-  "main": "dist/index.js",
-  "scripts": {},
+  "main": "src/index.tsx",
+  "scripts": {
+    "test": "./node_modules/.bin/eslint . --ext .ts,.tsx"
+  },
   "repository": {
     "type": "git",
-    "url": "git@gitlab.com:hecom/wrapper-load.git"
+    "url": "https://github.com/hecom-rn/LoadWrapper.git"
   },
   "author": "Xiaosong Gao",
   "license": "MIT",
-  "peerDependencies": {
-    "@hecom/foundation": "*",
-    "@hecom/wrapper-basic": "*"
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@types/react": "^16.8.13",
+    "@types/react-native": "^0.57.45",
+    "eslint-plugin-automatic": "latest"
+  },
+  "dependencies": {
+    "@hecom/wrapper-basic": "latest"
   }
 }
