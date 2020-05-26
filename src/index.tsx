@@ -28,19 +28,19 @@ export default function <T = any> (
     const WrappedComponent = withBasicWrapper(OutterComponent);
     return class extends React.PureComponent {
         static navigationOptions = (opt) => {
-            const {navigation} = opt;
-            const {_title} = navigation.state.params;
+            const {route} = opt;
+            const {_title} = route.params ? route.params : {};
             let navOptions = {};
             if (_title !== null) {
                 if (options.canBack === false) {
-                    navOptions.headerLeft = null;
+                    navOptions.headerLeft = ()=>{};
                 }
                 navOptions.title = _title;
             } else if (WrappedComponent.navigationOptions) {
                 const isFunc = typeof WrappedComponent.navigationOptions === 'function';
                 navOptions = isFunc ? WrappedComponent.navigationOptions(opt) : WrappedComponent.navigationOptions;
             } else {
-                navOptions = {header: null};
+                navOptions = {headerShown: false};
             }
             return navOptions;
         };
@@ -81,11 +81,11 @@ export default function <T = any> (
                 );
             } else {
                 const {componentFunc} = options;
-                const innerProps = this.props.navigation.state.params || {};
+                const innerProps = this.props.route.params || {};
                 const props = componentFunc ? componentFunc(innerProps) : innerProps;
                 const WrappedClass = WrappedComponent;
-                const newProps = {...props, navigation: this.props.navigation};
-                newProps.navigation.state.params = {
+                const newProps = {...props, route: this.props.route, navigation: this.props.navigation};
+                newProps.route.params = {
                     ...props,
                     _title: null,
                 };
@@ -96,7 +96,7 @@ export default function <T = any> (
         protected _options(item: T) {
             return {
                 item: item,
-                props: this.props.navigation.state.params || {},
+                props: this.props.route.params || {},
                 push: (obj: T, key: string) => {
                     this.queue.push(obj);
                     this.waitings[key] = true;
