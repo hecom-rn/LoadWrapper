@@ -21,7 +21,7 @@
     "@types/react-native": "^0.57.45",
     "eslint-plugin-automatic": "latest"
   },
-  "dependencies": {
-    "@hecom/wrapper-basic": "latest"
+  "peerDependencies": {
+    "@hecom/wrapper-basic": "*"
   }
 }
