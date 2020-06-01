@@ -39,8 +39,10 @@ export default function <T = any> (
             } else if (WrappedComponent.navigationOptions) {
                 const isFunc = typeof WrappedComponent.navigationOptions === 'function';
                 navOptions = isFunc ? WrappedComponent.navigationOptions(opt) : WrappedComponent.navigationOptions;
+                navOptions.title = !!navOptions.title ? navOptions.title : '';
             } else {
                 navOptions = {headerShown: false};
+                navOptions.title = !!navOptions.title ? navOptions.title : '';
             }
             return navOptions;
         };
