@@ -75,6 +75,8 @@ export default function <T = any> (
                                 source={options.activityLottiePath}
                                 loop={true}
                                 autoPlay={true}
+                                resizeMode={'contain'}
+                                style={{height: 100, width: 100}}
                             /> : <ActivityIndicator />}
                     </View>
                 );
