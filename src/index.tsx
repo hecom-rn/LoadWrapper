@@ -76,7 +76,7 @@ export default function <T = any> (
                                 loop={true}
                                 autoPlay={true}
                                 resizeMode={'contain'}
-                                style={{height: 100, width: 100}}
+                                style={{height: 150, width: 150}}
                                 imageAssetsFolder='lottieLoading'
                             /> : <ActivityIndicator />}
                     </View>
