@@ -1,12 +1,10 @@
 {
   "name": "@hecom/wrapper-load",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": false,
   "description": "Loading Queue Wrapper",
   "main": "src/index.tsx",
-  "scripts": {
-
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "https://github.com/hecom-rn/LoadWrapper.git"
@@ -20,7 +18,7 @@
     "@types/react": "^16.8.13",
     "@types/react-native": "^0.57.45",
     "eslint-plugin-automatic": "latest",
-    "lottie-react-native":"^4.1.3"
+    "lottie-react-native": "^4.1.3"
   },
   "peerDependencies": {
     "@hecom/wrapper-basic": "*"
