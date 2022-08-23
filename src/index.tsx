@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, StyleSheet, View, StyleProp, ViewStyle } from 'react-native';
 import withBasicWrapper from '@hecom/wrapper-basic';
+import LottieView from 'lottie-react-native';
 import ErrorPage, * as ErrorPageItems from './ErrorPage';
 
 export interface Params<T = any> {
@@ -16,6 +17,7 @@ export interface Options<T = any> {
     initFunc?: (param: Params<T>) => void;
     processFunc?: (param: Params<T>) => void ;
     componentFunc?: (props: any) => any;
+    activityLottiePath?: string;
     errorTitle?: string;
     errorPageOptions?: ErrorPageItems.Props;
     loadingViewStyle: StyleProp<ViewStyle>;
@@ -68,7 +70,12 @@ export default function <T = any> (
             if (isLoading) {
                 return (
                     <View style={[styles.loading, options.loadingViewStyle]}>
-                        <ActivityIndicator />
+                        {options.activityLottiePath ? 
+                            <LottieView
+                                source={options.activityLottiePath}
+                                loop={true}
+                                autoPlay={true}
+                            /> : <ActivityIndicator />}
                     </View>
                 );
             } else if (!isValid) {
