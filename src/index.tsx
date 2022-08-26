@@ -18,6 +18,7 @@ export interface Options<T = any> {
     processFunc?: (param: Params<T>) => void ;
     componentFunc?: (props: any) => any;
     activityLottiePath?: string;
+    activityLottieImagePath?: string;
     errorTitle?: string;
     errorPageOptions?: ErrorPageItems.Props;
     loadingViewStyle: StyleProp<ViewStyle>;
@@ -77,7 +78,7 @@ export default function <T = any> (
                                 autoPlay={true}
                                 resizeMode={'contain'}
                                 style={{height: 150, width: 150}}
-                                imageAssetsFolder='lottieLoading'
+                                imageAssetsFolder={options.activityLottieImagePath || ''}
                             /> : <ActivityIndicator />}
                     </View>
                 );
