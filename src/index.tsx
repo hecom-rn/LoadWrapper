@@ -52,6 +52,7 @@ export default function <T = any> (
 
         private queue: T[] = [];
         private waitings: {[key: string]: boolean} = {};
+        private lottieView: LottieView;
 
         constructor(props) {
             super(props);
@@ -68,11 +69,18 @@ export default function <T = any> (
 
         render() {
             const {isLoading, isValid} = this.state;
+            if (!isLoading && this.lottieView) {
+                this.lottieView.pause();
+                this.lottieView = null;
+            }
             if (isLoading) {
                 return (
                     <View style={[styles.loading, options.loadingViewStyle]}>
                         {options.activityLottiePath ? 
                             <LottieView
+                                ref={(ref) => {
+                                    this.lottieView = ref;
+                                }}
                                 source={options.activityLottiePath}
                                 loop={true}
                                 autoPlay={true}
