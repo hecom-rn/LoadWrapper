@@ -4,7 +4,9 @@
   "private": false,
   "description": "Loading Queue Wrapper",
   "main": "src/index.tsx",
-  "scripts": {},
+  "scripts": {
+    "patch": "npm version patch -m 'Bump version %s';git push origin master --tags"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/hecom-rn/LoadWrapper.git"
