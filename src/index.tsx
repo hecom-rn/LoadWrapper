@@ -67,6 +67,13 @@ export default function <T = any> (
             }
         }
 
+        componentWillUnmount(): void {
+            if (this.lottieView) {
+                this.lottieView.pause();
+                this.lottieView = null;
+            }
+        }
+
         render() {
             const {isLoading, isValid} = this.state;
             if (!isLoading && this.lottieView) {
