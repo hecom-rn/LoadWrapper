@@ -9,6 +9,7 @@ export interface Params<T = any> {
     item: T;
     push: (value: T, key: string) => void;
     isWaiting: (key: string) => boolean;
+    waitKey: (key: string) => void;
     finish: (status: boolean, isStop: boolean) => void
 }
 
@@ -83,7 +84,7 @@ export default function <T = any> (
             if (isLoading) {
                 return (
                     <View style={[styles.loading, options.loadingViewStyle]}>
-                        {options.activityLottiePath ? 
+                        {options.activityLottiePath ?
                             <LottieView
                                 ref={(ref) => {
                                     this.lottieView = ref;
@@ -130,6 +131,7 @@ export default function <T = any> (
                     this.waitings[key] = true;
                 },
                 isWaiting: (key: string) => this.waitings[key],
+                waitKey: (key: string) => this.waitings[key] = true,
                 finish: this._finishItem.bind(this),
             };
         }
