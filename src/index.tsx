@@ -17,6 +17,7 @@ export interface Options<T = any> {
     canBack: boolean;
     initFunc?: (param: Params<T>) => void;
     processFunc?: (param: Params<T>) => void ;
+    sortQueue?: (queue: T[]) => T[];
     componentFunc?: (props: any) => any;
     activityLottiePath?: string;
     activityLottieImagePath?: string;
@@ -128,6 +129,9 @@ export default function <T = any> (
                 props: this.props.route.params || {},
                 push: (obj: T, key: string) => {
                     this.queue.push(obj);
+                    if (options.sortQueue) {
+                        this.queue = options.sortQueue(this.queue);
+                    }
                     this.waitings[key] = true;
                 },
                 isWaiting: (key: string) => this.waitings[key],
