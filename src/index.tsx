@@ -22,6 +22,7 @@ export interface Options<T = any> {
     activityLottiePath?: string;
     activityLottieImagePath?: string;
     errorTitle?: string;
+    loadingTitle?: string;
     errorPageOptions?: ErrorPageItems.Props;
     loadingViewStyle: StyleProp<ViewStyle>;
 }
@@ -172,7 +173,7 @@ export default function <T = any> (
             const navOptions = {};
             if (isLoading) {
                 if (isInitial || !this.state.isLoading) {
-                    navOptions._title = '加载中';
+                    navOptions._title = options.loadingTitle || '加载中';
                 }
             } else {
                 if (isValid) {
