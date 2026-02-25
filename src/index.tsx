@@ -1,10 +1,12 @@
-import React from 'react';
-import { ActivityIndicator, StyleSheet, View, StyleProp, ViewStyle } from 'react-native';
 import withBasicWrapper from '@hecom/wrapper-basic';
 import LottieView from 'lottie-react-native';
+import React from 'react';
+import { ActivityIndicator, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import ErrorPage, * as ErrorPageItems from './ErrorPage';
 
-export interface Params<T = any> {
+type QueueItemType = any & { isLowPriority?: boolean };
+
+export interface Params<T = QueueItemType> {
     props: any;
     item: T;
     push: (value: T, key: string) => void;
@@ -13,11 +15,10 @@ export interface Params<T = any> {
     finish: (status: boolean, isStop: boolean) => void
 }
 
-export interface Options<T = any> {
+export interface Options<T = QueueItemType> {
     canBack: boolean;
     initFunc?: (param: Params<T>) => void;
-    processFunc?: (param: Params<T>) => void ;
-    sortQueue?: (queue: T[]) => T[];
+    processFunc?: (param: Params<T>) => Promise<boolean> ;
     componentFunc?: (props: any) => any;
     activityLottiePath?: string;
     activityLottieImagePath?: string;
@@ -27,7 +28,7 @@ export interface Options<T = any> {
     loadingViewStyle: StyleProp<ViewStyle>;
 }
 
-export default function <T = any> (
+export default function <T = QueueItemType> (
     OutterComponent: React.ComponentClass,
     options: Options<T>
 ) {
@@ -53,7 +54,7 @@ export default function <T = any> (
             return navOptions;
         };
 
-        private queue: T[] = [];
+        private queue: QueueItemType[] = [];
         private waitings: {[key: string]: boolean} = {};
         private lottieView: LottieView;
 
@@ -130,14 +131,10 @@ export default function <T = any> (
                 props: this.props.route.params || {},
                 push: (obj: T, key: string) => {
                     this.queue.push(obj);
-                    if (options.sortQueue) {
-                        this.queue = options.sortQueue(this.queue);
-                    }
                     this.waitings[key] = true;
                 },
                 isWaiting: (key: string) => this.waitings[key],
                 waitKey: (key: string) => this.waitings[key] = true,
-                finish: this._finishItem.bind(this),
             };
         }
 
@@ -145,22 +142,29 @@ export default function <T = any> (
             if (this.queue.length === 0) {
                 this._changeStatus(false, true);
             } else {
-                options.processFunc && options.processFunc(this._options(this.queue[0]));
-            }
-        }
-
-        protected _finishItem(status: boolean, isStop: boolean = false) {
-            if (status) {
-                if (this.queue.length > 1) {
-                    this.queue = this.queue.slice(1);
-                } else {
+                console.log(this.queue.length, '************start request this.queue.length************');
+                // 保存当前队列的副本并清空原队列，优先级较低的请求放到最后处理
+                let queueCopy = [];
+                this.queue = this.queue.reduce((pre, item) => {
+                    if (item.isLowPriority) {
+                        pre.push(item);
+                    } else {
+                        queueCopy.push(item);
+                    }
+                    return pre;
+                }, []);
+                if (queueCopy.length == 0) {
+                    queueCopy = [...this.queue];
                     this.queue = [];
                 }
-                if (!isStop) {
+
+                Promise.all(queueCopy.map((item) => {
+                    return options.processFunc ? options.processFunc(this._options(item)) : Promise.resolve(true);
+                })).then(() => {
                     setTimeout(this._processQueue.bind(this), 0);
-                }
-            } else {
-                this._changeStatus(false, false);
+                }).catch(() => {
+                    this._changeStatus(false, false);
+                });
             }
         }
 
