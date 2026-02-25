@@ -19,7 +19,7 @@ export interface Options<T = QueueItemType> {
     canBack: boolean;
     loadFinishFunc?: () => void;
     initFunc?: (param: Params<T>) => void;
-    processFunc?: (param: Params<T>) => Promise<boolean> ;
+    processFunc?: (param: Params<T>) => Promise<boolean>;
     componentFunc?: (props: any) => any;
     activityLottiePath?: string;
     activityLottieImagePath?: string;
@@ -55,7 +55,7 @@ export default function <T = QueueItemType> (
             return navOptions;
         };
 
-        private queue: QueueItemType[] = [];
+        private queue: (T & { isLowPriority?: boolean })[] = [];
         private waitings: {[key: string]: boolean} = {};
         private lottieView: LottieView;
 
