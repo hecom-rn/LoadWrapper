@@ -17,6 +17,7 @@ export interface Params<T = QueueItemType> {
 
 export interface Options<T = QueueItemType> {
     canBack: boolean;
+    loadFinishFunc?: () => void;
     initFunc?: (param: Params<T>) => void;
     processFunc?: (param: Params<T>) => Promise<boolean> ;
     componentFunc?: (props: any) => any;
@@ -181,6 +182,7 @@ export default function <T = QueueItemType> (
                 }
             } else {
                 if (isValid) {
+                    options.loadFinishFunc && options.loadFinishFunc();
                     navOptions._title = null;
                 } else {
                     navOptions._title = options.errorTitle;
