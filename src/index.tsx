@@ -145,7 +145,7 @@ export default function <T = QueueItemType> (
             } else {
                 console.log(this.queue.length, '************start request this.queue.length************');
                 // 保存当前队列的副本并清空原队列，优先级较低的请求放到最后处理
-                let queueCopy = [];
+                let queueCopy: (T & { isLowPriority?: boolean })[] = [];
                 this.queue = this.queue.reduce((pre, item) => {
                     if (item.isLowPriority) {
                         pre.push(item);
@@ -153,8 +153,8 @@ export default function <T = QueueItemType> (
                         queueCopy.push(item);
                     }
                     return pre;
-                }, []);
-                if (queueCopy.length == 0) {
+                }, [] as (T & { isLowPriority?: boolean })[]);
+                if (queueCopy.length === 0) {
                     queueCopy = [...this.queue];
                     this.queue = [];
                 }
@@ -164,6 +164,8 @@ export default function <T = QueueItemType> (
                 })).then(() => {
                     setTimeout(this._processQueue.bind(this), 0);
                 }).catch(() => {
+                    // 恢复执行失败的任务到队列头部，防止任务丢失
+                    this.queue = [...queueCopy, ...this.queue];
                     this._changeStatus(false, false);
                 });
             }
