@@ -164,8 +164,13 @@ export default function <T = QueueItemType> (
                 })).then(() => {
                     setTimeout(this._processQueue.bind(this), 0);
                 }).catch(() => {
-                    // 恢复执行失败的任务到队列头部，防止任务丢失
-                    this.queue = [...queueCopy, ...this.queue];
+                    // 安全恢复执行失败的任务到队列头部，防止任务丢失并去重
+                    const failedTasks = Array.isArray(queueCopy) ? queueCopy : [];
+                    if (failedTasks.length > 0) {
+                        const existingTasks = new Set(this.queue);
+                        const newTasks = failedTasks.filter(t => !existingTasks.has(t));
+                        this.queue = [...newTasks, ...this.queue];
+                    }
                     this._changeStatus(false, false);
                 });
             }
